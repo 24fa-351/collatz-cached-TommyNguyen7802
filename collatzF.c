@@ -22,6 +22,18 @@ int collatzSteps(int n)
     return steps;
 }
 
+void runCollatz(int N, int MIN, int MAX)
+{
+    srand(time(NULL));
+    int cacheHits = 0;
+    for (int i = 0; i < N; i++)
+    {
+        int RN = MIN + rand() % (MAX - MIN);
+        int steps = collatzSteps(RN);
+        printf("%d,%d\n", RN, steps);
+    }
+}
+
 void runCollatzLRU(int N, int MIN, int MAX)
 {
     srand(time(NULL));
@@ -44,7 +56,7 @@ void runCollatzLRU(int N, int MIN, int MAX)
         printf("%d,%d\n", RN, steps);
     }
     double cacheHitPercentage = ((double)cacheHits / N) * 100;
-    printf("Cache Hit Percentage: %.2f%%\n", cacheHitPercentage);
+    printf("Cache Hit Percentage using LRU: %.2f%%\n", cacheHitPercentage);
 }
 
 void runCollatzLFU(int N, int MIN, int MAX)
@@ -69,5 +81,5 @@ void runCollatzLFU(int N, int MIN, int MAX)
         printf("%d,%d\n", RN, steps);
     }
     double cacheHitPercentage = ((double)cacheHits / N) * 100;
-    printf("Cache Hit Percentage: %.2f%%\n", cacheHitPercentage);
+    printf("Cache Hit Percentage using LFU: %.2f%%\n", cacheHitPercentage);
 }

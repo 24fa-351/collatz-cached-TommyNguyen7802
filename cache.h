@@ -1,8 +1,6 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#define CACHE_SIZE 10000
-
 typedef struct CacheEntryLRU
 {
     int key;
@@ -18,9 +16,10 @@ typedef struct CacheEntryLFU
     int frequency;
 } CacheEntryLFU;
 
-
+void setCacheValueLRU(int cache);
 CacheEntryLRU* getFromCache(int key);
 void addToCacheLRU(int key, int value);
+void setCacheValueLFU(int cache);
 CacheEntryLFU* getFromCacheLFU(int key);
 void addToCacheLFU(int key, int value);
 #endif

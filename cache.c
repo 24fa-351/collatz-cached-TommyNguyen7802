@@ -2,36 +2,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-CacheEntryLRU* cache[CACHE_SIZE];
+int cache_size;
+CacheEntryLRU** cacheLRU;
 CacheEntryLRU* head;
 CacheEntryLRU* tail;
-CacheEntryLFU* cacheLFU[CACHE_SIZE];
+CacheEntryLFU** cacheLFU;
 int cacheCount;
+
+void setCacheValueLRU(int cache)
+{
+    cache_size = cache;
+    cacheLRU = (CacheEntryLRU**)malloc(cache * sizeof(CacheEntryLRU*));
+    for (int i = 0; i < cache_size; i++) {
+        cacheLRU[i] = NULL;
+    }
+}
+
+void setCacheValueLFU(int cache)
+{
+    cache_size = cache;
+    cacheLFU = (CacheEntryLFU**)malloc(cache * sizeof(CacheEntryLFU*));
+    for (int i = 0; i < cache_size; i++) {
+        cacheLFU[i] = NULL;
+    }
+}
 
 CacheEntryLRU* getFromCache(int key)
 {
     for (int i = 0; i < cacheCount; i++)
     {
-        if (cache[i]->key == key)
+        if (cacheLRU[i]->key == key)
         {
-            if (cache[i] != head)
+            if (cacheLRU[i] != head)
             {
-                if (cache[i] == tail)
+                if (cacheLRU[i] == tail)
                 {
-                    tail = cache[i]->prev;
+                    tail = cacheLRU[i]->prev;
                     tail->next = NULL;
                 }
                 else
                 {
-                    cache[i]->prev->next = cache[i]->next;
-                    cache[i]->next->prev = cache[i]->prev;
+                    cacheLRU[i]->prev->next = cacheLRU[i]->next;
+                    cacheLRU[i]->next->prev = cacheLRU[i]->prev;
                 }
-                cache[i]->next = head;
-                cache[i]->prev = NULL;
-                head->prev = cache[i];
-                head = cache[i];
+                cacheLRU[i]->next = head;
+                cacheLRU[i]->prev = NULL;
+                head->prev = cacheLRU[i];
+                head = cacheLRU[i];
             }
-            return cache[i];
+            return cacheLRU[i];
         }
     }
     return NULL;
@@ -53,9 +72,9 @@ void addToCacheLRU(int key, int value)
     {
         tail = newEntry;
     }
-    if (cacheCount < CACHE_SIZE)
+    if (cacheCount < cache_size)
     {
-        cache[cacheCount++] = newEntry;
+        cacheLRU[cacheCount++] = newEntry;
     }
     else
     {
@@ -63,7 +82,7 @@ void addToCacheLRU(int key, int value)
         tail = tail->prev;
         tail->next = NULL;
         free(oldTail);
-        cache[cacheCount - 1] = newEntry;
+        cacheLRU[cacheCount - 1] = newEntry;
     }
 }
 
@@ -82,7 +101,7 @@ CacheEntryLFU* getFromCacheLFU(int key)
 
 void addToCacheLFU(int key, int value)
 {
-    if (cacheCount < CACHE_SIZE)
+    if (cacheCount < cache_size)
     {
         cacheLFU[cacheCount] = (CacheEntryLFU*)malloc(sizeof(CacheEntryLFU));
         cacheLFU[cacheCount]->key = key;
@@ -94,7 +113,7 @@ void addToCacheLFU(int key, int value)
     {
         int minFreq = INT_MAX;
         int minIndex = -1;
-        for (int i = 0; i < CACHE_SIZE; i++)
+        for (int i = 0; i < cache_size; i++)
         {
             if (cacheLFU[i]->frequency < minFreq)
             {
